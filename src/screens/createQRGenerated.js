@@ -1,6 +1,7 @@
 import {StyleSheet, Text, View, ScrollView, Button, Image} from 'react-native';
 import React, {useEffect, useState, useLayoutEffect} from 'react';
 import QRCode from 'react-native-qrcode-svg';
+import Share from 'react-native-share';
 
 import RNQRGenerator from 'rn-qr-generator';
 import {useSafeArea} from 'react-native-safe-area-context';
@@ -14,8 +15,13 @@ export default function GenerateQR({navigation, route = {}}) {
   const insets = useSafeArea();
 
   const [imageUri, setImageUri] = useState(null);
+  const [base64Image, setBase64Image] = useState(null);
 
-  let svg;
+  useLayoutEffect(() => {
+    generateQR();
+  }, []);
+
+  // let svg;
 
   // const test = async () => {
   //   svg.toDataURL((data) => {
@@ -29,9 +35,13 @@ export default function GenerateQR({navigation, route = {}}) {
   //   });
   //   await Sharing.shareAsync("file:///storage/emulated/0/Pictures/t.png");
   // };
+  // console.log(typeof data);
 
-  const test2 = () => {
-    // alert('test');
+  const generateQR = () => {
+    // Handle URL string
+    let newData = data.replace(/(^\w+:|^)\/\//, '');
+    console.log(newData);
+
     RNQRGenerator.generate({
       value: data,
       height: 300,
@@ -40,19 +50,33 @@ export default function GenerateQR({navigation, route = {}}) {
       backgroundColor: 'white',
       color: 'black',
       correctionLevel: 'M',
-      fileName: `${data}_ScanKu`,
+      fileName: `${newData}_ScanKu`,
     })
       .then(res => {
         console.log('response:', res);
         setImageUri({uri: res.uri});
+        // console.log(typeof imageUri);
+        setBase64Image(res.base64);
         // console.log(imageUri);
       })
       .catch(err => console.log('Cannot create QR code', err));
   };
 
-  useLayoutEffect(() => {
-    test2();
-  }, []);
+  const shareImage = async () => {
+    const options = {
+      title: 'Share image',
+      message: `Content data: ${data}`,
+      url: `data:image/png;base64,${base64Image}`,
+    };
+    await Share.open(options)
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        err && console.log(err);
+      });
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -91,6 +115,27 @@ export default function GenerateQR({navigation, route = {}}) {
                   alignItems: 'center',
                 }}>
                 <Ionicons name="ios-save" size={18} color="white" />
+              </View>
+            }
+          />
+          <RowSeparator />
+
+          {/* Share Image  */}
+
+          <RowItem
+            title="Share Image"
+            onPress={() => shareImage()}
+            leftIcon={
+              <View
+                style={{
+                  backgroundColor: 'green',
+                  height: 36,
+                  width: 36,
+                  borderRadius: 18,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Ionicons name="share-social" size={18} color="white" />
               </View>
             }
           />

@@ -1,13 +1,8 @@
 import React, {useState} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Clipboard,
-} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 // import * as Clipboard from "expo-clipboard";
+import Clipboard from '@react-native-clipboard/clipboard';
 
 import {FocusedStatusBar} from '../component/focusedStatusBar';
 import {RowItem, RowSeparator} from '../component/rowItem';
@@ -17,7 +12,7 @@ export default function CreateQR({navigation}) {
 
   const fetchCopiedText = async () => {
     const text = await Clipboard.getString().then(data => {
-      if (data === 'null') {
+      if (data === null) {
         alert('Clipboard not found !');
       } else {
         // setCopiedText(data);
