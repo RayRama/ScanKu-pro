@@ -14,17 +14,23 @@ import {request, PERMISSIONS} from 'react-native-permissions';
 // import {Camera} from 'expo-camera';
 import {Ionicons} from '@expo/vector-icons';
 // import * as ImagePicker from 'expo-image-picker';
+import ImageCropPicker from 'react-native-image-crop-picker';
+import RNQRGenerator from 'rn-qr-generator';
 
 const screen = Dimensions.get('window');
 
-export default function Home() {
+export default function Home({navigation}) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [image, setImage] = useState(null);
-  const [imageUri, setImageUri] = useState('');
-  const [widthImage, setWidthImage] = useState(0);
-  const [heightImage, setHeightImage] = useState(0);
+  const [dataScanned, setDataScanned] = useState('');
+  // const [image, setImage] = useState(null);
+  // const [imageUri, setImageUri] = useState('');
+  // const [widthImage, setWidthImage] = useState(0);
+  // const [heightImage, setHeightImage] = useState(0);
   // const [type, setType] = useState(BarCodeScanner.Constants.Type);
+
+  // Handle URL
+  // let newData = dataScanned[0].replace(/(^\w+:|^)\/\//, '');
 
   const askPermission = () => {
     request(
@@ -58,9 +64,16 @@ export default function Home() {
     // console.log(bounds.origin);
     // console.log(screen.width, screen.height);
     // console.log(viewMinX, viewMinY);
+    // &&
+    //   bounds.origin.x < viewMinX + 60 &&
+    //   bounds.origin.y < viewMinY + 60
     if (bounds.origin.x >= viewMinX && bounds.origin.y >= viewMinY) {
       setScanned(true);
-      alert(`Tipe barcode adalah ${type} dengan data berisi ${data}`);
+      setDataScanned(data);
+      let newData = dataScanned.replace(/(^\w+:|^)\/\//, '');
+
+      navigation.push('GenerateQR', {data: data});
+      // alert(`Tipe barcode adalah ${type} dengan data berisi ${data}`);
     }
     // BarCodeScanner.scanFromURLAsync(imageUri);
     // alert(`Tipe barcode adalah ${type} dengan data berisi ${data}`);
@@ -119,6 +132,31 @@ export default function Home() {
   //   }
   // };
 
+  const pickImage = () => {
+    ImageCropPicker.openPicker({
+      width: 300,
+      height: 300,
+      cropping: true,
+      freeStyleCropEnabled: true,
+      includeBase64: true,
+      mediaType: 'photo',
+    })
+      .then(image => {
+        // console.log(image.path);
+        RNQRGenerator.detect({uri: image.path}).then(result => {
+          console.log(typeof result);
+          setDataScanned(result.values);
+          let newData = result.values[0].replace(/(^\w+:|^)\/\//, '');
+          navigation.push('GenerateQR', {data: newData});
+          console.log(newData);
+        });
+      })
+      .catch(err => {
+        console.log('Error: ', err);
+      });
+    // console.log(dataScanned[0]);
+  };
+
   return (
     <View style={styles.container}>
       <FocusedStatusBar barStyle="light-content" backgroundColor="#222" />
@@ -145,7 +183,7 @@ export default function Home() {
       <View style={[styles.bottomContainer, {flexDirection: 'row'}]}>
         <TouchableOpacity
           style={{marginHorizontal: 20}}
-          onPress={() => alert('test')}>
+          onPress={() => pickImage()}>
           <Ionicons
             name="image"
             size={24}

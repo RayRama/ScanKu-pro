@@ -16,6 +16,8 @@ export default function GenerateQR({navigation, route = {}}) {
 
   const [imageUri, setImageUri] = useState(null);
   const [base64Image, setBase64Image] = useState(null);
+  // Handle URL string
+  let newData = data.replace(/(^\w+:|^)\/\//, '');
 
   useLayoutEffect(() => {
     generateQR();
@@ -38,10 +40,8 @@ export default function GenerateQR({navigation, route = {}}) {
   // console.log(typeof data);
 
   const generateQR = () => {
-    // Handle URL string
-    let newData = data.replace(/(^\w+:|^)\/\//, '');
-    console.log(newData);
-
+    // console.log(newData);
+    // console.log(data);
     RNQRGenerator.generate({
       value: data,
       height: 300,
@@ -50,7 +50,7 @@ export default function GenerateQR({navigation, route = {}}) {
       backgroundColor: 'white',
       color: 'black',
       correctionLevel: 'M',
-      fileName: `${newData}_ScanKu`,
+      // fileName: `${newData}_ScanKu`,
     })
       .then(res => {
         console.log('response:', res);
@@ -94,10 +94,9 @@ export default function GenerateQR({navigation, route = {}}) {
 
           {/* Text data  */}
           <View style={styles.textData}>
-            <Text style={{fontSize: 16, color: '#222', fontWeight: 'bold'}}>
-              Text Data:{' '}
+            <Text style={{fontSize: 16, color: '#222', textAlign: 'center'}}>
+              {data}
             </Text>
-            <Text style={{fontSize: 16, color: '#222'}}>{data}</Text>
           </View>
 
           {/* Save as image */}
@@ -181,8 +180,6 @@ const styles = StyleSheet.create({
   },
   textData: {
     flex: 1,
-    marginHorizontal: 25,
-    flexDirection: 'row',
     marginVertical: 20,
   },
 });
