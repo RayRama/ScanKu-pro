@@ -7,7 +7,7 @@ Aplikasi ini masih dalam tahap pengembangan dan mungkin terdapat beberapa minor 
 
  - [x] Scan with camera
 	 - [ ] Add flash functionality
- - [ ] Scan with image file
+ - [x] Scan with image file
  - [x] Add share feature
  - [x] QR Generator
 	 - [x] From clipboard
